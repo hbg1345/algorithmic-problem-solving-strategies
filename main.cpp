@@ -2,58 +2,46 @@
 #include <vector>
 using namespace std;
 
-int clocks[16];
-vector<int> connectedClocks[10];
-const int INF = 1e5;
-
-int minPushes(int button) {
-    bool allSet = true;
-    for(int i=0; i<16; i++) {
-        if (clocks[i] != 4) {
-            allSet = false;
+void normalize(vector<int>& num) {
+    /* normalize <-> erase carry and borrow */
+    num.push_back(0);
+    for(int i=0; i<num.size(); i++) {
+        if (num[i] < 0) { // negative case
+            int borrow = (abs(num[i])+9)/10; // ceil(|n_i|/10)
+            num[i+1] -= borrow;
+            num[i] += 10*borrow;
+        } else { // positve case
+            int carry = num[i] / 10;
+            num[i+1] += carry;
+            num[i] %= 10;
         }
     }
-    if (allSet) {
-        return 0;
-    }
-    if (button == 10) return INF;
-    int oldClocks[16];
-    for(int i=0; i<16; i++)
-        oldClocks[i] = clocks[i];
-    int ret = INF;
-    for(int i=0; i<4; i++) {
-        for(auto c: connectedClocks[button]) {
-            clocks[c] = (clocks[c]-1+4+i) % 4 + 1;
-        }
-        ret = min(ret, i+minPushes(button+1));
-        for(int j=0; j<16; j++)
-            clocks[j] = oldClocks[j];
-    }
-    return ret;
+    while (num.size() > 1 && num.back() == 0)
+        num.pop_back();
 }
 
+vector<int> multiply(vector<int>& a, vector<int>& b) {
+    vector<int> c(a.size()+b.size()+1);
+    for(int i=0; i<a.size(); i++)
+        for(int j=0; j<b.size(); j++)
+            c[i+j] = a[i]*b[j];
+    normalize(c);
+    return c;
+}
 int main() {
     int C;
     cin >> C;
-    connectedClocks[0] = {0, 1, 2};
-    connectedClocks[1] = {3, 7, 9, 11};
-    connectedClocks[2] = {4, 10, 14, 15};
-    connectedClocks[3] = {0, 4, 5, 6, 7};
-    connectedClocks[4] = {6, 7, 8, 10, 12};
-    connectedClocks[5] = {0, 2, 14, 15};
-    connectedClocks[6] = {3, 14, 15};
-    connectedClocks[7] = {4, 5, 7, 14, 15};
-    connectedClocks[8] = {1, 2, 3, 4, 5};
-    connectedClocks[9] = {3, 4, 5, 9, 13};
-    
     while (C--) {
-        vector<bool> pushed;
-        for(int i=0; i<16; i++) {
-            cin >> clocks[i];
-            clocks[i] /= 3;
-        }
-        int ans = minPushes(0);
-        if (ans >= INF) ans = -1;
-        cout << ans << endl;
+        string members, fans;
+        cin >> members >> fans;
+        vector<int> a(members.size());
+        vector<int> b(fans.size());
+        for(int i=0; i<a.size(); i++) 
+            a[a.size()-1-i] = members[i] == 'M' ? 1:0;
+        for(int i=0; i<b.size(); i++) 
+            b[i] = fans[i] == 'M' ? 1:0;
+        auto ret = multiply(a, b);
+        for(auto v: ret) cout << v << ' ';
+        cout << endl;
     }
 }

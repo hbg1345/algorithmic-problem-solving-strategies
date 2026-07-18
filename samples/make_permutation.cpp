@@ -3,14 +3,14 @@
 
 using namespace std;
 
-void makeCombination(int n, vector<bool> &picked, vector<int> &P) {
+void makePermutation(int n, vector<bool> &picked, vector<int> &P) {
     bool allPicked = true;
     for(int i=0; i<n; i++) {
         if (!picked[i]) {
             allPicked = false;
             picked[i] = 1;
             P.push_back(i);
-            makeCombination(n, picked, P);
+            makePermutation(n, picked, P);
             P.pop_back();
             picked[i] = 0;
         }
@@ -26,5 +26,5 @@ int main() {
     int N = 4;
     vector<bool> picked(N);
     vector<int> P;
-    makeCombination(N, picked, P);
+    makePermutation(N, picked, P);
 }

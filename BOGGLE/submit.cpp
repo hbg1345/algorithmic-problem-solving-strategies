@@ -53,5 +53,5 @@ int main() {
             else cout << target << ' ' << "NO" << endl;
         }
     }
-   
+
 }
